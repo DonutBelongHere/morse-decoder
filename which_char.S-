@@ -1,0 +1,184 @@
+
+
+;;; which_char.S Version 1 06/12/2016 Rosabelle Armstead, Matthew Newberry, Arun Subramaniam, Felix Wolfers
+;;; which_char subroutine compares bit patterns with correct values
+;;; to determine which character to display
+;;;	References:
+;;;	[ATmega]: General 8-bit Atmel Microcontroller document 
+;;;  downloadable from
+;;;  www.atmel.com/dyn/resources/prod_documents/8271S.pdf
+;;;  [ATmega328p]: Specific ATmega328p document
+;;;  downloadable from
+;;;  www.atmel.com/Images/doc7810.pdf
+;;;  [AVR]: Instruction Set Manual
+;;;  downloadable from
+;;;  www.atmel.com/Images/doc0856.pdf
+;;;
+
+;;; import character definitions for display
+#include "display.S"
+
+;;; Inputs:
+;;; r22 is bit pattern set by button presses
+;;; Outputs:
+;;; r24 is segments to turn on to display character
+;;; Side-effects: none
+
+	.global which_char
+	
+which_char:
+	;; determine which character to display
+	sbrc r22, 7		; check if morse input too long
+	rjmp error		; if bit 7 or 8 are set, input is too long so jump to error display
+	sbrc r22, 8		; else if they are not set, skip jump instruction and go to character checking
+	rjmp error
+	cpi r22, 0x01	; check if bit pattern is unchanged from initialisation
+	brne A			; if bit pattern has changed, start comparing for characters
+	rjmp 1f			; if bit pattern is unchanged from initialisation, go to the end of which_char routine
+A:	cpi r22, 0x05	; compare morse code bit pattern input to correct bit pattern for the character
+	brne B			; if input morse code is not equal to correct morse code, compare for next character
+	ldi r24, CHAR_A ; if input morse code is equal, load the bit mask for the character into r24
+	rjmp 1f			; and go to the end of the which_char routine
+B:	cpi r22, 0x18	; repeat for all characters
+	brne C
+	ldi r24, CHAR_B
+	rjmp 1f
+C:	cpi r22, 0x1A
+	brne D
+	ldi r24, CHAR_C
+	rjmp 1f
+D:	cpi r22, 0x0C
+	brne E
+	ldi r24, CHAR_D
+	rjmp 1f
+E:	cpi r22, 0x02
+	brne F
+	ldi r24, CHAR_E
+	rjmp 1f
+F:	cpi r22, 0x12
+	brne G
+	ldi r24, CHAR_F
+	rjmp 1f
+G:	cpi r22, 0x0E
+	brne H
+	ldi r24, CHAR_G
+	rjmp 1f
+H:	cpi r22, 0x10
+	brne I
+	ldi r24, CHAR_H
+	rjmp 1f
+I:	cpi r22, 0x04
+	brne J
+	ldi r24, CHAR_I
+	rjmp 1f
+J:	cpi r22, 0x17
+	brne K
+	ldi r24, CHAR_J
+	rjmp 1f
+K:	cpi r22, 0x0D
+	brne L
+	ldi r24, CHAR_K
+	rjmp 1f
+L:	cpi r22, 0x14
+	brne M
+	ldi r24, CHAR_L
+	rjmp 1f
+M:	cpi r22, 0x07
+	brne N
+	ldi r24, CHAR_M
+	rjmp 1f
+N:	cpi r22, 0x06
+	brne O
+	ldi r24, CHAR_N
+	rjmp 1f
+O:	cpi r22, 0x0F
+	brne P
+	ldi r24, CHAR_O
+	rjmp 1f
+P:	cpi r22, 0x16
+	brne Q
+	ldi r24, CHAR_P
+	rjmp 1f
+Q:	cpi r22, 0x1D
+	brne R
+	ldi r24, CHAR_Q
+	rjmp 1f
+R:	cpi r22, 0x0A
+	brne S
+	ldi r24, CHAR_R
+	rjmp 1f
+S:	cpi r22, 0x08
+	brne T
+	ldi r24, CHAR_S
+	rjmp 1f
+T:	cpi r22, 0x03
+	brne U
+	ldi r24, CHAR_T
+	rjmp 1f
+U:	cpi r22, 0x09
+	brne V
+	ldi r24, CHAR_U
+	rjmp 1f
+V:	cpi r22, 0x11
+	brne W
+	ldi r24, CHAR_V
+	rjmp 1f
+W:	cpi r22, 0x0B		
+	brne X
+	ldi r24, CHAR_W
+	rjmp 1f
+X:	cpi r22, 0x19
+	brne Y
+	ldi r24, CHAR_X
+	rjmp 1f
+Y:	cpi r22, 0x1B
+	brne Z
+	ldi r24, CHAR_Y
+	rjmp 1f
+Z:	cpi r22, 0x1C
+	brne ONE
+	ldi r24, CHAR_Z
+	rjmp 1f
+ONE:	cpi r22, 0x2F
+	brne TWO
+	ldi r24, CHAR_1
+	rjmp 1f
+TWO:	cpi r22, 0x27
+	brne THREE
+	ldi r24, CHAR_2
+	rjmp 1f
+THREE:	cpi r22, 0x23
+	brne FOUR
+	ldi r24, CHAR_3
+	rjmp 1f
+FOUR:	cpi r22, 0x21
+	brne FIVE
+	ldi r24, CHAR_4
+	rjmp 1f
+FIVE:	cpi r22, 0x20
+	brne SIX
+	ldi r24, CHAR_5
+	rjmp 1f
+SIX:	cpi r22, 0x30
+	brne SEVEN
+	ldi r24, CHAR_6
+	rjmp 1f
+SEVEN:	cpi r22, 0x38
+	brne EIGHT
+	ldi r24, CHAR_7
+	rjmp 1f
+EIGHT:	cpi r22, 0x3C
+	brne NINE
+	ldi r24, CHAR_8
+	rjmp 1f
+NINE:	cpi r22, 0x3E
+	brne ZERO
+	ldi r24, CHAR_9
+	rjmp 1f
+ZERO:	cpi r22, 0x3F
+	brne error
+	ldi r24, CHAR_0
+	rjmp 1f
+error:	ldi r24, CHAR_ERR 	; if the morse code input doesn't match any characters or is too long, load bit mask
+							; for error character into r24
+1:		ret					; return to main
